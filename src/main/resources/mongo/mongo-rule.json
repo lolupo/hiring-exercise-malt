@@ -1,0 +1,20 @@
+{
+  "id": "rule-1",
+  "name": "spain-or-repeat",
+  "rate": 8,
+  "restrictions": {
+    "$or": [
+      {
+        "mission_duration": {
+          "$gt": "2months"
+        }
+      },
+      {
+        "commercial_relationship_duration": {
+          "$gt": "2months"
+        }
+      }
+    ],
+    "country": "ES"
+  }
+}
