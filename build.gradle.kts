@@ -1,11 +1,12 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.6.3"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("org.springframework.boot") version "3.3.5"
+    id("io.spring.dependency-management") version "1.1.6"
     id("java")
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.spring") version "1.6.10"
+    id("org.jetbrains.kotlin.jvm") version "2.0.21-RC"
+    id("org.jetbrains.kotlin.plugin.spring") version "2.0.21"
 }
 
 group = "com.malt"
@@ -39,9 +40,9 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+    compilerOptions {
+        freeCompilerArgs.set(listOf("-Xjsr305=strict"))
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
