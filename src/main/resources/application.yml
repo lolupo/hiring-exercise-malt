@@ -1,1 +1,15 @@
-spring.application.name: backend-dev-hiring-exercise
+spring:
+  application:
+    name: backend-dev-hiring-exercise
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/malt
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG
