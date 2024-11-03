@@ -1,6 +1,6 @@
 #!/bin/bash
 # Lancement de MongoDB en arrière-plan
-mongod --fork --logpath /var/log/mongodb.log --bind_ip localhost
+mongod --fork --logpath /var/log/mongodb.log --bind_ip_all
 
 # Attente pour que MongoDB soit prêt
 sleep 5
