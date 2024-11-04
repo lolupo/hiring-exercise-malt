@@ -1,5 +1,6 @@
 package com.malt.hiringexercise.api
 
+import com.malt.hiringexercise.service.IpStackService
 import com.malt.hiringexercise.service.SearchCommissionRate
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -10,7 +11,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/v1/commission-rate")
 class DummyController(
-    private val service: SearchCommissionRate
+    private val searchCommissionRate: SearchCommissionRate,
+    private val ipStackService: IpStackService
 ) {
 
     @PostMapping("/rate")
@@ -24,6 +26,12 @@ class DummyController(
         @RequestBody
         searchCriteria: SearchCriteria
     ): Double {
-        return service.searchRateByCriteria(searchCriteria)
+
+        val clientLocation = ipStackService.getIpDetails(searchCriteria.client.ip)
+        val freelancerLocation = ipStackService.getIpDetails(searchCriteria.freelancer.ip)
+
+        return clientLocation.takeIf { it == freelancerLocation }
+            ?.let { searchCommissionRate.searchRateByCriteria(searchCriteria, it) }
+            ?: throw IllegalArgumentException("Client and freelancer are not in the same country")
     }
 }
