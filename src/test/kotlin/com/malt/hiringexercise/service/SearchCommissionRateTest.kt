@@ -10,6 +10,7 @@ import com.malt.hiringexercise.domain.model.Restrictions
 import com.malt.hiringexercise.domain.repository.CommissionRateRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
@@ -52,7 +53,7 @@ class SearchCommissionRateTest {
 
         Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
 
-        val result = searchCommissionRate.searchRateByCriteria(searchCriteria)
+        val result = searchCommissionRate.searchRateByCriteria(searchCriteria, "ES")
 
         assertEquals(10.0, result)
     }
@@ -83,7 +84,7 @@ class SearchCommissionRateTest {
 
         Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
 
-        val result = searchCommissionRate.searchRateByCriteria(searchCriteria)
+        val result = searchCommissionRate.searchRateByCriteria(searchCriteria, "ES")
 
         assertEquals(10.0, result)
     }
@@ -114,13 +115,13 @@ class SearchCommissionRateTest {
 
         Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
 
-        val result = searchCommissionRate.searchRateByCriteria(searchCriteria)
+        val result = searchCommissionRate.searchRateByCriteria(searchCriteria, "ES")
 
         assertEquals(10.0, result)
     }
 
     @Test
-    fun `should return zero commission rate when restriction is valid`() {
+    fun `should throw IllegalArgumentException when no restriction is valid`() {
         val searchCriteria = SearchCriteria(
             client = Client(ip = "192.168.1.1"),
             freelancer = Freelancer(ip = "192.168.1.2"),
@@ -145,10 +146,35 @@ class SearchCommissionRateTest {
 
         Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
 
-        val result = searchCommissionRate.searchRateByCriteria(searchCriteria)
+        val exception = assertThrows<IllegalArgumentException> {
+            searchCommissionRate.searchRateByCriteria(searchCriteria, "ES")
+        }
 
-        assertEquals(0.0, result)
+        assertEquals("No commission rate found", exception.message)
     }
+
+    @Test
+    fun `should throw IllegalArgumentException when database returns empty result`() {
+        val searchCriteria = SearchCriteria(
+            client = Client(ip = "192.168.1.1"),
+            freelancer = Freelancer(ip = "192.168.1.2"),
+            mission = Mission(length = "2months"),
+            commercialRelationship = CommercialRelationship(
+                firstMission = LocalDateTime.of(2022, 1, 1, 0, 0),
+                lastMission = LocalDateTime.of(2022, 1, 2, 0, 0)
+            )
+        )
+
+        Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("FR")).thenReturn(emptyList())
+
+        val exception = assertThrows<IllegalArgumentException> {
+            searchCommissionRate.searchRateByCriteria(searchCriteria, "FR")
+        }
+
+        assertEquals("No commission rates found for the country: FR", exception.message)
+    }
+
+
 
 
 }

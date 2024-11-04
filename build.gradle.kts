@@ -19,15 +19,17 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+    implementation ("org.apache.httpcomponents.client5:httpclient5:5.4.1")
+    implementation ("org.apache.httpcomponents.core5:httpcore5:5.3.1")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation ("org.mockito.kotlin:mockito-kotlin:5.4.0")
-
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 }
 
 sourceSets {

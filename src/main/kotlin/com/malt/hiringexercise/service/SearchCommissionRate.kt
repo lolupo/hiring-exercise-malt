@@ -9,7 +9,10 @@ import java.time.temporal.ChronoUnit
 @Service
 class SearchCommissionRate(private val commissionRateRepository: CommissionRateRepository) {
 
-    fun searchRateByCriteria(searchCriteria: SearchCriteria): Double {
+    fun searchRateByCriteria(
+        searchCriteria: SearchCriteria,
+        commonLocation: String
+    ): Double {
         // Extract the numeric value from the mission length
         val missionLength = extractNumericValue(searchCriteria.mission.length)
         // Calculate the duration in months between the first and last mission
@@ -18,7 +21,11 @@ class SearchCommissionRate(private val commissionRateRepository: CommissionRateR
             searchCriteria.commercialRelationship.lastMission
         )
 
-        val commissionRates = commissionRateRepository.findByRestrictionsCountry("ES")
+        val commissionRates = commissionRateRepository.findByRestrictionsCountry(commonLocation)
+
+        if (commissionRates.isEmpty()) {
+            throw IllegalArgumentException("No commission rates found for the country: $commonLocation")
+        }
 
         // Filter the commission rates by the restrictions
         val filteredRates = commissionRates.filter { commissionRate ->
@@ -31,9 +38,8 @@ class SearchCommissionRate(private val commissionRateRepository: CommissionRateR
             }
         }
 
-        return filteredRates.firstOrNull()?.rate?.toDouble() ?: 0.0
+        return filteredRates.firstOrNull()?.rate?.toDouble() ?: throw IllegalArgumentException("No commission rate found")
     }
-
 
     // Extract the numeric value from this kind of string: "4months"
     private fun extractNumericValue(duration: String): Int {

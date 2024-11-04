@@ -12,3 +12,6 @@ logging:
         data:
           mongodb:
             core: DEBUG
+
+ipstack:
+  access_key: 886da9175bb3a548eb5a40ba4a710b7d
