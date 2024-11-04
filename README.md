@@ -1,55 +1,83 @@
-# Malt's Hiring Exercise
+# README for API Endpoints
 
-Welcome to Malt's hiring exercise for back-end developers!
+## Search Commission Rate API
 
-This project is provided as a shell aiming to help you focus on the most interesting parts of the
-exercise, without losing time properly setting up a Spring application. That being said, feel free
-to start from scratch if you prefer to. Just keep in mind that we do want the exercise to be made
-with Spring Boot.
+**Endpoint**: `/v1/commission-rate/rate`
 
-Other than that you may:
+- **HTTP Method**: POST
+- **Description**: This endpoint is used to fetch commission rates based on detailed search criteria, including mission length, duration of commercial relationship, and location data.
 
-- use either Java or Kotlin, whichever you prefer (the project is configured for both languages) 
-- make it fully-reactive or stick to a good old threaded implementation (the later being pre-configured)
-- skip setting up a persistence mechanism. Really, we don't care about it for this exercise so don't
-  lose your time and use something like the provided InMemoryStore class.
+### Request Body Example
 
-## How to get started
-
-The first dependency to install is Java, which you can install as follows, using
-[SDKMAN](https://sdkman.io/):
-
-```sh
-$ curl -s "https://get.sdkman.io" | bash
-$ sdk env
-  # ... and follow printed instructions, which should look like:
-  # sdk install java SOME_VERSION
+```json
+{
+  "client": {
+    "ip": "192.168.1.1"
+  },
+  "freelancer": {
+    "ip": "192.168.1.2"
+  },
+  "mission": {
+    "length": "4months"
+  },
+  "commercialRelationship": {
+    "firstMission": "2022-01-01T00:00:00",
+    "lastMission": "2022-05-01T00:00:00"
+  }
+}
 ```
 
-The usual warning: don't blindly execute script provided that way on the the Internet. So don't
-take our word for it and check that https://get.sdkman.io is indeed a harmless script ;-)
+### Steps Performed by the Service:
 
-You may also download and install Java manually from https://adoptium.net. The required version
-is specified in [.sdkmanrc](.sdkmanrc).
+1. **Extract Mission Length:**
+- The service extracts a numeric value representing the mission length from a string input (e.g., "4months" would extract `4`).
 
-Now you can execute the following to compile and test the project (it will download Gradle first)
-:
-```sh
-$ ./gradlew build
+2. **Calculate Commercial Relationship Duration:**
+- It computes the duration in months between the first mission date and the last mission date.
+
+3. **Fetch Commission Rates:**
+- Retrieves applicable commission rates from the repository based on the common location (country) of the missions.
+
+4. **Filter Commission Rates:**
+- Filters these rates according to the restrictions defined in the search criteria provided.
+
+5. **Return Commission Rate:**
+- Returns the first commission rate that matches the criteria or throws an exception if no suitable rate is found.
+
+
+## Add Commission Rate API
+
+**Endpoint**: `/v1/commission-rate/add`
+
+- **HTTP Method**: POST
+- **Description**: This endpoint is used to add a new commission rate.
+
+### Request Body Example
+
+```json
+{
+   "name": "Standard",
+   "rate": 10,
+   "restrictions": {
+      "or": [
+         { "mission_duration": { "$gt": "2months" } },
+         { "commercial_relationship_duration": { "$gt": "2months" } }
+      ],
+      "country": "ES"
+   }
+}
 ```
 
-And you can start the application with:
-```sh
-./$ gradlew bootRun
-```
+## Prerequisites
 
-Once started, an URL should be displayed for you to hit the server:
-```
-...
-2022-02-22 14:37:43.523  INFO 134091 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
-2022-02-22 14:37:43.529  INFO 134091 --- [  restartedMain] com.malt.hiringexercise.ApplicationKt    : Started ApplicationKt in 0.973 seconds (JVM running for 1.301)
+Before running the service, ensure you have:
 
-Everything's fine! Open this link to have the server return something ;-)
-http://localhost:8080
+- **Docker** installed on your machine.
 
-```
+### Steps to Prepare:
+
+1. **Build the Docker Image:**
+   ```bash
+   cd src/main/resources
+   docker build -f Mongo.dockerfile -t mongo .
+   docker run -d -p 27017:27017 --name my-mongo-base mongo
