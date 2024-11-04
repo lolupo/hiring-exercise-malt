@@ -2,18 +2,23 @@
   "name": "spain-or-repeat",
   "rate": 8,
   "restrictions": {
-    "$or": [
+    "@or": [
       {
         "mission_duration": {
-          "$gt": "2months"
+          "gt": "2months"
         }
       },
       {
         "commercial_relationship_duration": {
-          "$gt": "2months"
+          "gt": "2months"
         }
       }
     ],
-    "country": "ES"
+    "@client.location": {
+      "country": "ES"
+    },
+    "@freelancer.location": {
+      "country": "ES"
+    }
   }
 }

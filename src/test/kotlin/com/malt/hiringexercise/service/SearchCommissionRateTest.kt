@@ -2,7 +2,6 @@ package com.malt.hiringexercise.service
 
 import com.malt.hiringexercise.api.dto.*
 import com.malt.hiringexercise.domain.model.CommissionRate
-import com.malt.hiringexercise.domain.model.Restrictions
 import com.malt.hiringexercise.domain.repository.CommissionRateRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -19,11 +18,11 @@ class SearchCommissionRateTest {
     @Mock
     private lateinit var commissionRateRepository: CommissionRateRepository
 
+    @Mock
+    private lateinit var ipStackService: IpStackService
+
     @InjectMocks
     private lateinit var searchCommissionRate: SearchCommissionRate
-
-    private val correctResponse = Response(8.0, "Standard")
-    private val unCorrectResponse = Response(10.0)
 
     @Test
     fun `should return correct commission rate`() {
@@ -37,27 +36,104 @@ class SearchCommissionRateTest {
             )
         )
 
-        val restrictions = Restrictions(
-            or = listOf(
-                mapOf("mission_duration" to mapOf("\$gt" to "2months")),
-                mapOf("commercial_relationship_duration" to mapOf("\$gt" to "2months"))
-            ),
-            country = "ES"
-        )
+        val restrictions = """
+            {
+                "@or": [
+                    {"mission_duration": {"gt": "2months"}},
+                    {"commercial_relationship_duration": {"gt": "2months"}}
+                ],
+                "@client.location": {"country": "ES"},
+                "@freelancer.location": {"country": "ES"}
+            }
+        """.trimIndent()
 
         val commissionRates = listOf(
             CommissionRate(name = "Standard", rate = 8.0, restrictions = restrictions)
         )
 
-        Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
+        Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
+        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
 
-        val result = searchCommissionRate.execute(searchCriteria, "ES")
+        val result = searchCommissionRate.execute(searchCriteria)
 
-        assertEquals(correctResponse, result)
+        assertEquals(Response(8.0, "Standard"), result)
     }
 
     @Test
-    fun `should return correct commission rate when only mission_duration is valid`() {
+    fun `should return correct commission rate when one or condition is met`() {
+        val searchCriteria = SearchCriteria(
+            client = Client(ip = "192.168.1.1"),
+            freelancer = Freelancer(ip = "192.168.1.2"),
+            mission = Mission(length = "4months"),
+            commercialRelationship = CommercialRelationship(
+                firstMission = LocalDateTime.of(2022, 1, 1, 0, 0),
+                lastMission = LocalDateTime.of(2022, 1, 2, 0, 0)
+            )
+        )
+
+        val restrictions = """
+            {
+                "@or": [
+                    {"mission_duration": {"gt": "2months"}},
+                    {"commercial_relationship_duration": {"gt": "2months"}}
+                ],
+                "@client.location": {"country": "ES"},
+                "@freelancer.location": {"country": "ES"}
+            }
+        """.trimIndent()
+
+        val commissionRates = listOf(
+            CommissionRate(name = "Standard", rate = 8.0, restrictions = restrictions)
+        )
+
+        Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
+        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
+
+        val result = searchCommissionRate.execute(searchCriteria)
+
+        assertEquals(Response(8.0, "Standard"), result)
+    }
+
+    @Test
+    fun `should return default commission rate when no restriction is valid`() {
+        val searchCriteria = SearchCriteria(
+            client = Client(ip = "192.168.1.1"),
+            freelancer = Freelancer(ip = "192.168.1.2"),
+            mission = Mission(length = "1months"),
+            commercialRelationship = CommercialRelationship(
+                firstMission = LocalDateTime.of(2022, 1, 1, 0, 0),
+                lastMission = LocalDateTime.of(2022, 1, 2, 0, 0)
+            )
+        )
+
+        val restrictions = """
+            {
+                "@or": [
+                    {"mission_duration": {"gt": "2months"}},
+                    {"commercial_relationship_duration": {"gt": "2months"}}
+                ],
+                "@client.location": {"country": "ES"},
+                "@freelancer.location": {"country": "ES"}
+            }
+        """.trimIndent()
+
+        val commissionRates = listOf(
+            CommissionRate(name = "Standard", rate = 8.0, restrictions = restrictions)
+        )
+
+        Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
+        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
+
+        val result = searchCommissionRate.execute(searchCriteria)
+
+        assertEquals(Response(10.0), result)
+    }
+
+    @Test
+    fun `should return default commission rate when no commission rates are found`() {
         val searchCriteria = SearchCriteria(
             client = Client(ip = "192.168.1.1"),
             freelancer = Freelancer(ip = "192.168.1.2"),
@@ -68,58 +144,51 @@ class SearchCommissionRateTest {
             )
         )
 
-        val restrictions = Restrictions(
-            or = listOf(
-                mapOf("mission_duration" to mapOf("\$gt" to "2months")),
-                mapOf("commercial_relationship_duration" to mapOf("\$gt" to "2months"))
-            ),
-            country = "ES"
-        )
+        Mockito.`when`(commissionRateRepository.findAll()).thenReturn(emptyList())
 
-        val commissionRates = listOf(
-            CommissionRate(name = "Standard", rate = 8.0, restrictions = restrictions)
-        )
+        val result = searchCommissionRate.execute(searchCriteria)
 
-        Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
-
-        val result = searchCommissionRate.execute(searchCriteria, "ES")
-
-        assertEquals(correctResponse, result)
+        assertEquals(Response(10.0), result)
     }
 
     @Test
-    fun `should return correct commission rate when only commercial_relationship_duration is valid`() {
+    fun `should return correct commission rate with and condition`() {
         val searchCriteria = SearchCriteria(
             client = Client(ip = "192.168.1.1"),
             freelancer = Freelancer(ip = "192.168.1.2"),
-            mission = Mission(length = "1months"),
+            mission = Mission(length = "4months"),
             commercialRelationship = CommercialRelationship(
                 firstMission = LocalDateTime.of(2022, 1, 1, 0, 0),
                 lastMission = LocalDateTime.of(2022, 5, 1, 0, 0)
             )
         )
 
-        val restrictions = Restrictions(
-            or = listOf(
-                mapOf("mission_duration" to mapOf("\$gt" to "2months")),
-                mapOf("commercial_relationship_duration" to mapOf("\$gt" to "2months"))
-            ),
-            country = "ES"
-        )
+        val restrictions = """
+            {
+                "@and": [
+                    {"mission_duration": {"gt": "2months"}},
+                    {"commercial_relationship_duration": {"gt": "2months"}}
+                ],
+                "@client.location": {"country": "ES"},
+                "@freelancer.location": {"country": "ES"}
+            }
+        """.trimIndent()
 
         val commissionRates = listOf(
             CommissionRate(name = "Standard", rate = 8.0, restrictions = restrictions)
         )
 
-        Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
+        Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
+        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
 
-        val result = searchCommissionRate.execute(searchCriteria, "ES")
+        val result = searchCommissionRate.execute(searchCriteria)
 
-        assertEquals(correctResponse, result)
+        assertEquals(Response(8.0, "Standard"), result)
     }
 
     @Test
-    fun `should return 10 when no restriction is valid`() {
+    fun `should return default commission rate when and condition is not met`() {
         val searchCriteria = SearchCriteria(
             client = Client(ip = "192.168.1.1"),
             freelancer = Freelancer(ip = "192.168.1.2"),
@@ -130,43 +199,63 @@ class SearchCommissionRateTest {
             )
         )
 
-        val restrictions = Restrictions(
-            or = listOf(
-                mapOf("mission_duration" to mapOf("\$gt" to "2months")),
-                mapOf("commercial_relationship_duration" to mapOf("\$gt" to "2months"))
-            ),
-            country = "ES"
-        )
+        val restrictions = """
+            {
+                "@and": [
+                    {"mission_duration": {"gt": "2months"}},
+                    {"commercial_relationship_duration": {"gt": "2months"}}
+                ],
+                "@client.location": {"country": "ES"},
+                "@freelancer.location": {"country": "ES"}
+            }
+        """.trimIndent()
 
         val commissionRates = listOf(
             CommissionRate(name = "Standard", rate = 8.0, restrictions = restrictions)
         )
 
-        Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
+        Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
+        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
 
-        val result = searchCommissionRate.execute(searchCriteria, "ES")
+        val result = searchCommissionRate.execute(searchCriteria)
 
-        assertEquals(unCorrectResponse, result)
+        assertEquals(Response(10.0), result)
     }
 
     @Test
-    fun `should return 10 when database returns empty result`() {
+    fun `should return default commission rate when or condition is not met`() {
         val searchCriteria = SearchCriteria(
             client = Client(ip = "192.168.1.1"),
             freelancer = Freelancer(ip = "192.168.1.2"),
-            mission = Mission(length = "2months"),
+            mission = Mission(length = "1months"),
             commercialRelationship = CommercialRelationship(
                 firstMission = LocalDateTime.of(2022, 1, 1, 0, 0),
                 lastMission = LocalDateTime.of(2022, 1, 2, 0, 0)
             )
         )
 
-        Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(emptyList())
+        val restrictions = """
+            {
+                "@or": [
+                    {"mission_duration": {"gt": "2months"}},
+                    {"commercial_relationship_duration": {"gt": "2months"}}
+                ],
+                "@client.location": {"country": "ES"},
+                "@freelancer.location": {"country": "ES"}
+            }
+        """.trimIndent()
 
-        val result = searchCommissionRate.execute(searchCriteria, "ES")
+        val commissionRates = listOf(
+            CommissionRate(name = "Standard", rate = 8.0, restrictions = restrictions)
+        )
 
-        assertEquals(unCorrectResponse, result)
+        Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
+        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
+
+        val result = searchCommissionRate.execute(searchCriteria)
+
+        assertEquals(Response(10.0), result)
     }
-
-
 }

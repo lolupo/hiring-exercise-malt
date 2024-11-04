@@ -4,21 +4,22 @@ import com.malt.hiringexercise.api.dto.Response
 import com.malt.hiringexercise.api.dto.SearchCriteria
 import com.malt.hiringexercise.domain.model.CommissionRate
 import com.malt.hiringexercise.service.AddCommissionRateService
-import com.malt.hiringexercise.service.IpStackService
 import com.malt.hiringexercise.service.SearchCommissionRate
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/v1/commission-rate")
 class CommissionRateController(
     private val searchCommissionRate: SearchCommissionRate,
-    private val addCommissionRateService: AddCommissionRateService,
-    private val ipStackService: IpStackService
+    private val addCommissionRateService: AddCommissionRateService
 ) {
 
     @PostMapping("/rate")
@@ -33,13 +34,10 @@ class CommissionRateController(
         searchCriteria: SearchCriteria
     ): Response {
 
-        val clientLocation = ipStackService.execute(searchCriteria.client.ip)
-        val freelancerLocation = ipStackService.execute(searchCriteria.freelancer.ip)
-
-        return clientLocation.takeIf { it == freelancerLocation }
-            ?.let { searchCommissionRate.execute(searchCriteria, it) }
-            ?: throw IllegalArgumentException("Client and freelancer are not in the same country")
+        return searchCommissionRate.execute(searchCriteria)
     }
+
+
 
     @PostMapping("/add")
     @Operation(
@@ -52,7 +50,7 @@ class CommissionRateController(
                     schema = Schema(implementation = CommissionRate::class),
                     examples = [ExampleObject(
                         name = "CommissionRateExample",
-                        value = "{\"name\": \"Standard\", \"rate\": 10, \"restrictions\": {\"or\": [{\"mission_duration\": {\"\$gt\": \"2months\"}}, {\"commercial_relationship_duration\": {\"\$gt\": \"2months\"}}], \"country\": \"ES\"}}"
+                        value = "{\"name\": \"Standard\", \"rate\": 10, \"restrictions\": \"{\\\"@and\\\": [{\\\"mission_duration\\\": {\\\"gt\\\": \\\"2months\\\"}}, {\\\"commercial_relationship_duration\\\": {\\\"gt\\\": \\\"2months\\\"}}], \\\"@client.location\\\": {\\\"country\\\": \\\"ES\\\"}, \\\"@freelancer.location\\\": {\\\"country\\\": \\\"ES\\\"}}\"}"
                     )]
                 )]
             )
@@ -64,7 +62,7 @@ class CommissionRateController(
                 schema = Schema(implementation = CommissionRate::class),
                 examples = [ExampleObject(
                     name = "CommissionRateBodyExample",
-                    value = "{\"name\": \"Standard\", \"rate\": 10, \"restrictions\": {\"or\": [{\"mission_duration\": {\"\$gt\": \"2months\"}}, {\"commercial_relationship_duration\": {\"\$gt\": \"2months\"}}], \"country\": \"ES\"}}"
+                    value = "{\"name\": \"Standard\", \"rate\": 10, \"restrictions\": \"{\\\"@and\\\": [{\\\"mission_duration\\\": {\\\"gt\\\": \\\"2months\\\"}}, {\\\"commercial_relationship_duration\\\": {\\\"gt\\\": \\\"2months\\\"}}], \\\"@client.location\\\": {\\\"country\\\": \\\"ES\\\"}, \\\"@freelancer.location\\\": {\\\"country\\\": \\\"ES\\\"}}\"}"
                 )]
             )]
         )
