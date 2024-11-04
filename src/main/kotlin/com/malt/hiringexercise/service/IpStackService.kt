@@ -13,7 +13,7 @@ class IpStackService(private val restClient: RestClient) {
     private lateinit var accessKey: String
     private val objectMapper = ObjectMapper()
 
-    fun getIpDetails(ip: String): String {
+    fun execute(ip: String): String {
         val url = "/$ip?access_key=$accessKey"
         try {
             val response = restClient.get()

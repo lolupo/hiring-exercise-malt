@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit
 @Service
 class SearchCommissionRate(private val commissionRateRepository: CommissionRateRepository) {
 
-    fun searchRateByCriteria(
+    fun execute(
         searchCriteria: SearchCriteria,
         commonLocation: String
     ): Double {

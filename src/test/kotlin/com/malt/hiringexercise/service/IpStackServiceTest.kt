@@ -45,7 +45,7 @@ class IpStackServiceTest {
         Mockito.`when`(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec)
         Mockito.`when`(responseSpec.body(String::class.java)).thenReturn(response)
 
-        val result = ipStackService.getIpDetails(ip)
+        val result = ipStackService.execute(ip)
         assertEquals("ES", result)
     }
 
@@ -61,7 +61,7 @@ class IpStackServiceTest {
         Mockito.`when`(responseSpec.body(String::class.java)).thenThrow(RuntimeException::class.java)
 
         val exception = assertThrows<IllegalArgumentException> {
-            ipStackService.getIpDetails(ip)
+            ipStackService.execute(ip)
         }
 
         assertEquals("Error while fetching ip details", exception.message)

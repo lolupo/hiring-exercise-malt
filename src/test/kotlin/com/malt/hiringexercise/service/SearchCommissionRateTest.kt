@@ -48,12 +48,12 @@ class SearchCommissionRateTest {
         )
 
         val commissionRates = listOf(
-            CommissionRate(id = "1", name = "Standard", rate = 10, restrictions = restrictions)
+            CommissionRate(name = "Standard", rate = 10, restrictions = restrictions)
         )
 
         Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
 
-        val result = searchCommissionRate.searchRateByCriteria(searchCriteria, "ES")
+        val result = searchCommissionRate.execute(searchCriteria, "ES")
 
         assertEquals(10.0, result)
     }
@@ -79,12 +79,12 @@ class SearchCommissionRateTest {
         )
 
         val commissionRates = listOf(
-            CommissionRate(id = "1", name = "Standard", rate = 10, restrictions = restrictions)
+            CommissionRate(name = "Standard", rate = 10, restrictions = restrictions)
         )
 
         Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
 
-        val result = searchCommissionRate.searchRateByCriteria(searchCriteria, "ES")
+        val result = searchCommissionRate.execute(searchCriteria, "ES")
 
         assertEquals(10.0, result)
     }
@@ -110,12 +110,12 @@ class SearchCommissionRateTest {
         )
 
         val commissionRates = listOf(
-            CommissionRate(id = "1", name = "Standard", rate = 10, restrictions = restrictions)
+            CommissionRate(name = "Standard", rate = 10, restrictions = restrictions)
         )
 
         Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
 
-        val result = searchCommissionRate.searchRateByCriteria(searchCriteria, "ES")
+        val result = searchCommissionRate.execute(searchCriteria, "ES")
 
         assertEquals(10.0, result)
     }
@@ -141,13 +141,13 @@ class SearchCommissionRateTest {
         )
 
         val commissionRates = listOf(
-            CommissionRate(id = "1", name = "Standard", rate = 10, restrictions = restrictions)
+            CommissionRate(name = "Standard", rate = 10, restrictions = restrictions)
         )
 
         Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("ES")).thenReturn(commissionRates)
 
         val exception = assertThrows<IllegalArgumentException> {
-            searchCommissionRate.searchRateByCriteria(searchCriteria, "ES")
+            searchCommissionRate.execute(searchCriteria, "ES")
         }
 
         assertEquals("No commission rate found", exception.message)
@@ -168,7 +168,7 @@ class SearchCommissionRateTest {
         Mockito.`when`(commissionRateRepository.findByRestrictionsCountry("FR")).thenReturn(emptyList())
 
         val exception = assertThrows<IllegalArgumentException> {
-            searchCommissionRate.searchRateByCriteria(searchCriteria, "FR")
+            searchCommissionRate.execute(searchCriteria, "FR")
         }
 
         assertEquals("No commission rates found for the country: FR", exception.message)
