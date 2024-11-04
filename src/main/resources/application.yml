@@ -11,5 +11,4 @@ logging:
       springframework:
         data:
           mongodb:
-            core:
-              MongoTemplate: DEBUG
+            core: DEBUG
