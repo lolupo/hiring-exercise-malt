@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -37,8 +39,6 @@ class CommissionRateController(
         return searchCommissionRate.execute(searchCriteria)
     }
 
-
-
     @PostMapping("/add")
     @Operation(
         summary = "Add a new Commission rate",
@@ -50,7 +50,7 @@ class CommissionRateController(
                     schema = Schema(implementation = CommissionRate::class),
                     examples = [ExampleObject(
                         name = "CommissionRateExample",
-                        value = "{\"name\": \"Standard\", \"rate\": 10, \"restrictions\": \"{\\\"@and\\\": [{\\\"mission_duration\\\": {\\\"gt\\\": \\\"2months\\\"}}, {\\\"commercial_relationship_duration\\\": {\\\"gt\\\": \\\"2months\\\"}}], \\\"@client.location\\\": {\\\"country\\\": \\\"ES\\\"}, \\\"@freelancer.location\\\": {\\\"country\\\": \\\"ES\\\"}}\"}"
+                        value = "{\"name\": \"Standard\", \"rate\": 10, \"restrictions\": \"{\\\"@and\\\": [{\\\"mission_duration\\\": {\\\"gt\\\": \\\"2months\\\"}}, {\\\"commercial_relationship_duration\\\": {\\\"gt\\\": \\\"2months\\\"}}], \\\"@client.location\\\": {\\\"country\\\": \\\"ES\\\"}, \\\"@freelancer.location\\\": {\\\\\"country\\\": \\\"ES\\\"}}\"}"
                     )]
                 )]
             )
@@ -68,7 +68,8 @@ class CommissionRateController(
         )
         @RequestBody
         commissionRate: CommissionRate
-    ): CommissionRate {
-        return addCommissionRateService.execute(commissionRate)
+    ): ResponseEntity<CommissionRate> {
+        val createdCommissionRate = addCommissionRateService.execute(commissionRate)
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCommissionRate)
     }
 }
