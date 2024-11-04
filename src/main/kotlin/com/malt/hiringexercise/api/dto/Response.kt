@@ -9,6 +9,10 @@ data class Response(
     @field:Schema(description = "spain or repeat", example = "150.0")
     val fees: Double,
 
-    @field:Schema(description = "Reason for the calculated fees", example = "Standard commission rate applied", nullable = true)
+    @field:Schema(
+        description = "Reason for the calculated fees",
+        example = "Standard commission rate applied",
+        nullable = true
+    )
     var reason: String? = null
 )

@@ -14,7 +14,11 @@ data class SearchCriteria(
     @field:Schema(description = "Mission information", required = true, example = "{\"length\": \"4months\"}")
     val mission: Mission,
 
-    @field:Schema(description = "Commercial relationship details", required = true, example = "{\"firstMission\": \"2018-04-16T13:24:17.510Z\", \"lastMission\": \"2018-07-16T14:24:17.510Z\"}")
+    @field:Schema(
+        description = "Commercial relationship details",
+        required = true,
+        example = "{\"firstMission\": \"2018-04-16T13:24:17.510Z\", \"lastMission\": \"2018-07-16T14:24:17.510Z\"}"
+    )
     val commercialRelationship: CommercialRelationship
 )
 

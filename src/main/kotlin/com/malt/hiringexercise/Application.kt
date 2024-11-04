@@ -9,10 +9,12 @@ class Application
 fun main(args: Array<String>) {
     val context = runApplication<Application>(*args)
     val port = context.environment.getProperty("local.server.port")
-    println("""
+    println(
+        """
         
         Everything's fine! To see the OpenApi documentation follow this link ;-)
         http://localhost:$port/swagger-ui/index.html
         
-    """.trimIndent())
+    """.trimIndent()
+    )
 }
