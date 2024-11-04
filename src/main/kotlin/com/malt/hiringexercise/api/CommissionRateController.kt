@@ -1,5 +1,7 @@
 package com.malt.hiringexercise.api
 
+import com.malt.hiringexercise.api.dto.Response
+import com.malt.hiringexercise.api.dto.SearchCriteria
 import com.malt.hiringexercise.domain.model.CommissionRate
 import com.malt.hiringexercise.service.AddCommissionRateService
 import com.malt.hiringexercise.service.IpStackService
@@ -24,12 +26,12 @@ class CommissionRateController(
     @ApiResponse(
         responseCode = "200",
         description = "The Commission rate value",
-        content = [Content(schema = Schema(type = "number", format = "double"))]
+        content = [Content(schema = Schema(implementation = Response::class))]
     )
     fun searchCommissionRate(
         @RequestBody
         searchCriteria: SearchCriteria
-    ): Double {
+    ): Response {
 
         val clientLocation = ipStackService.execute(searchCriteria.client.ip)
         val freelancerLocation = ipStackService.execute(searchCriteria.freelancer.ip)

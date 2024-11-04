@@ -1,6 +1,7 @@
 package com.malt.hiringexercise.service
 
-import com.malt.hiringexercise.api.SearchCriteria
+import com.malt.hiringexercise.api.dto.Response
+import com.malt.hiringexercise.api.dto.SearchCriteria
 import com.malt.hiringexercise.domain.repository.CommissionRateRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -12,7 +13,7 @@ class SearchCommissionRate(private val commissionRateRepository: CommissionRateR
     fun execute(
         searchCriteria: SearchCriteria,
         commonLocation: String
-    ): Double {
+    ): Response {
         // Extract the numeric value from the mission length
         val missionLength = extractNumericValue(searchCriteria.mission.length)
         // Calculate the duration in months between the first and last mission
@@ -24,7 +25,7 @@ class SearchCommissionRate(private val commissionRateRepository: CommissionRateR
         val commissionRates = commissionRateRepository.findByRestrictionsCountry(commonLocation)
 
         if (commissionRates.isEmpty()) {
-            throw IllegalArgumentException("No commission rates found for the country: $commonLocation")
+            return Response(10.0)
         }
 
         // Filter the commission rates by the restrictions
@@ -38,7 +39,9 @@ class SearchCommissionRate(private val commissionRateRepository: CommissionRateR
             }
         }
 
-        return filteredRates.firstOrNull()?.rate?.toDouble() ?: throw IllegalArgumentException("No commission rate found")
+        return filteredRates.firstOrNull()?.let {
+            Response(it.rate, it.name)
+        } ?: Response(10.0)
     }
 
     // Extract the numeric value from this kind of string: "4months"

@@ -1,4 +1,4 @@
-package com.malt.hiringexercise.api
+package com.malt.hiringexercise.api.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime

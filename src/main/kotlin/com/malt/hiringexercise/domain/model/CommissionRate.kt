@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Field
 @Document(collection = "commission_rate")
 data class CommissionRate (
      val name: String,
-     val rate: Int,
+     val rate: Double,
      val restrictions: Restrictions
     )
 
