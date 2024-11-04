@@ -11,8 +11,8 @@ fun main(args: Array<String>) {
     val port = context.environment.getProperty("local.server.port")
     println("""
         
-        Everything's fine! Open this link to have the server return something ;-)
-        http://localhost:$port
+        Everything's fine! To see the OpenApi documentation follow this link ;-)
+        http://localhost:$port/swagger-ui/index.html
         
     """.trimIndent())
 }

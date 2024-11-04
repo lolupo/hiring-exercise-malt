@@ -23,8 +23,11 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation ("org.mockito.kotlin:mockito-kotlin:5.4.0")
+
 }
 
 sourceSets {
