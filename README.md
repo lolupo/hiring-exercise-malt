@@ -11,19 +11,19 @@
 
 ```json
 {
-  "client": {
-    "ip": "192.168.1.1"
-  },
-  "freelancer": {
-    "ip": "192.168.1.2"
-  },
-  "mission": {
-    "length": "4months"
-  },
-  "commercialRelationship": {
-    "firstMission": "2022-01-01T00:00:00",
-    "lastMission": "2022-05-01T00:00:00"
-  }
+   "client": {
+      "ip": "192.168.1.1"
+   },
+   "freelancer": {
+      "ip": "192.168.1.2"
+   },
+   "mission": {
+      "length": "4months"
+   },
+   "commercialRelationship": {
+      "firstMission": "2022-01-01T00:00:00",
+      "lastMission": "2022-05-01T00:00:00"
+   }
 }
 ```
 
@@ -36,13 +36,13 @@
 - It computes the duration in months between the first mission date and the last mission date.
 
 3. **Fetch Commission Rates:**
-- Retrieves applicable commission rates from the repository based on the common location (country) of the missions.
+- Retrieves all commission rates from the repository.
 
-4. **Filter Commission Rates:**
-- Filters these rates according to the restrictions defined in the search criteria provided.
+4. **Validate Restrictions:**
+- Validates the restrictions defined in the commission rates against the search criteria provided. This includes checking mission duration, commercial relationship duration, and location data.
 
 5. **Return Commission Rate:**
-- Returns the first commission rate that matches the criteria or throws an exception if no suitable rate is found.
+- Returns the first commission rate that matches the criteria or throws an exception if no suitable rate is found (`10.0`).
 
 
 ## Add Commission Rate API
@@ -58,15 +58,12 @@
 {
    "name": "Standard",
    "rate": 10,
-   "restrictions": {
-      "or": [
-         { "mission_duration": { "$gt": "2months" } },
-         { "commercial_relationship_duration": { "$gt": "2months" } }
-      ],
-      "country": "ES"
-   }
+   "restrictions": "{\"@and\": [{\"mission_duration\": {\"gt\": \"2months\"}}, {\"commercial_relationship_duration\": {\"gt\": \"2months\"}}], \"@client.location\": {\"country\": \"ES\"}, \"@freelancer.location\": {\"country\": \"ES\"}}"
 }
 ```
+### Response
+- **Status Code**: 201 Created
+- Body: The created commission rate object
 
 ## Prerequisites
 
