@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -24,6 +26,8 @@ class CommissionRateController(
     private val addCommissionRateService: AddCommissionRate
 ) {
 
+    private val log: Logger = LoggerFactory.getLogger(CommissionRateController::class.java)
+
     @PostMapping("/rate")
     @Operation(summary = "Get Commission rate by search criteria")
     @ApiResponse(
@@ -35,7 +39,7 @@ class CommissionRateController(
         @RequestBody
         searchCriteria: SearchCriteria
     ): Response {
-
+        log.info("Searching commission rate with criteria: {}", searchCriteria)
         return searchCommissionRateService.execute(searchCriteria)
     }
 
@@ -69,6 +73,7 @@ class CommissionRateController(
         @RequestBody
         commissionRate: CommissionRate
     ): ResponseEntity<CommissionRate> {
+        log.info("Adding new commission rate: {}", commissionRate)
         val createdCommissionRate = addCommissionRateService.execute(commissionRate)
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCommissionRate)
     }
