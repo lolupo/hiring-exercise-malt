@@ -5,7 +5,7 @@ import com.malt.hiringexercise.domain.repository.CommissionRateRepository
 import org.springframework.stereotype.Service
 
 @Service
-class AddCommissionRateService(private val commissionRateRepository: CommissionRateRepository) {
+class AddCommissionRate(private val commissionRateRepository: CommissionRateRepository) {
 
     fun execute(commissionRate: CommissionRate): CommissionRate {
         return commissionRateRepository.save(commissionRate)

@@ -12,7 +12,7 @@ import java.time.temporal.ChronoUnit
 @Service
 class SearchCommissionRate(
     private val commissionRateRepository: CommissionRateRepository,
-    private val ipStackService: IpStackService
+    private val getIpLocationService: GetIpLocation
 ) {
 
     fun execute(
@@ -69,8 +69,8 @@ class SearchCommissionRate(
         } ?: true
 
         // Validate @client.location and @freelancer.location
-        val clientLocationValid = clientLocation == ipStackService.execute(searchCriteria.client.ip)
-        val freelancerLocationValid = freelancerLocation == ipStackService.execute(searchCriteria.freelancer.ip)
+        val clientLocationValid = clientLocation == getIpLocationService.execute(searchCriteria.client.ip)
+        val freelancerLocationValid = freelancerLocation == getIpLocationService.execute(searchCriteria.freelancer.ip)
 
         return orValid && andValid && clientLocationValid && freelancerLocationValid
     }

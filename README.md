@@ -77,4 +77,4 @@ Before running the service, ensure you have:
    ```bash
    cd src/main/resources
    docker build -f Mongo.dockerfile -t mongo .
-   docker run -d -p 27017:27017 --name my-mongo-base mongo
+   docker run --rm -d -p 27017:27017 --name my-mongo-base mongo

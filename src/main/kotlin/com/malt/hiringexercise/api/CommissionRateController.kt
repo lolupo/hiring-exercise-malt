@@ -3,7 +3,7 @@ package com.malt.hiringexercise.api
 import com.malt.hiringexercise.api.dto.Response
 import com.malt.hiringexercise.api.dto.SearchCriteria
 import com.malt.hiringexercise.domain.model.CommissionRate
-import com.malt.hiringexercise.service.AddCommissionRateService
+import com.malt.hiringexercise.service.AddCommissionRate
 import com.malt.hiringexercise.service.SearchCommissionRate
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/v1/commission-rate")
 class CommissionRateController(
-    private val searchCommissionRate: SearchCommissionRate,
-    private val addCommissionRateService: AddCommissionRateService
+    private val searchCommissionRateService: SearchCommissionRate,
+    private val addCommissionRateService: AddCommissionRate
 ) {
 
     @PostMapping("/rate")
@@ -36,7 +36,7 @@ class CommissionRateController(
         searchCriteria: SearchCriteria
     ): Response {
 
-        return searchCommissionRate.execute(searchCriteria)
+        return searchCommissionRateService.execute(searchCriteria)
     }
 
     @PostMapping("/add")

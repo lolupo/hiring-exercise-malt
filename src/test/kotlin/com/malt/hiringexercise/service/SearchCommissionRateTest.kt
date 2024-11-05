@@ -19,7 +19,7 @@ class SearchCommissionRateTest {
     private lateinit var commissionRateRepository: CommissionRateRepository
 
     @Mock
-    private lateinit var ipStackService: IpStackService
+    private lateinit var getIpLocation: GetIpLocation
 
     @InjectMocks
     private lateinit var searchCommissionRate: SearchCommissionRate
@@ -52,8 +52,8 @@ class SearchCommissionRateTest {
         )
 
         Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
-        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
-        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.2")).thenReturn("ES")
 
         val result = searchCommissionRate.execute(searchCriteria)
 
@@ -88,8 +88,8 @@ class SearchCommissionRateTest {
         )
 
         Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
-        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
-        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.2")).thenReturn("ES")
 
         val result = searchCommissionRate.execute(searchCriteria)
 
@@ -124,8 +124,8 @@ class SearchCommissionRateTest {
         )
 
         Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
-        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
-        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.2")).thenReturn("ES")
 
         val result = searchCommissionRate.execute(searchCriteria)
 
@@ -179,8 +179,8 @@ class SearchCommissionRateTest {
         )
 
         Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
-        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
-        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.2")).thenReturn("ES")
 
         val result = searchCommissionRate.execute(searchCriteria)
 
@@ -215,8 +215,8 @@ class SearchCommissionRateTest {
         )
 
         Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
-        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
-        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.2")).thenReturn("ES")
 
         val result = searchCommissionRate.execute(searchCriteria)
 
@@ -251,8 +251,8 @@ class SearchCommissionRateTest {
         )
 
         Mockito.`when`(commissionRateRepository.findAll()).thenReturn(commissionRates)
-        Mockito.`when`(ipStackService.execute("192.168.1.1")).thenReturn("ES")
-        Mockito.`when`(ipStackService.execute("192.168.1.2")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.1")).thenReturn("ES")
+        Mockito.`when`(getIpLocation.execute("192.168.1.2")).thenReturn("ES")
 
         val result = searchCommissionRate.execute(searchCriteria)
 

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 
 @Service
-class IpStackService(private val restClient: RestClient) {
+class GetIpLocation(private val restClient: RestClient) {
 
     @Value("\${ipstack.access_key}")
     private lateinit var accessKey: String
@@ -21,9 +21,9 @@ class IpStackService(private val restClient: RestClient) {
                 .retrieve()
                 .body(String::class.java)
             val jsonNode: JsonNode = objectMapper.readTree(response)
-            return jsonNode.get("country_code").asText()
+            return jsonNode["country_code"].asText()
         } catch (e: Exception) {
-            throw IllegalArgumentException("Error while fetching ip details")
+            throw IllegalArgumentException("Error while fetching ip details", e)
         }
     }
 }

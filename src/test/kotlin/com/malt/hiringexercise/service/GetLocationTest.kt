@@ -14,7 +14,7 @@ import org.springframework.web.client.RestClient.RequestHeadersUriSpec
 import org.springframework.web.client.RestClient.ResponseSpec
 
 @ExtendWith(MockitoExtension::class)
-class IpStackServiceTest {
+class GetLocationTest {
 
     @Mock
     private lateinit var restClient: RestClient
@@ -26,7 +26,7 @@ class IpStackServiceTest {
     private lateinit var responseSpec: ResponseSpec
 
     @InjectMocks
-    private lateinit var ipStackService: IpStackService
+    private lateinit var getIpLocation: GetIpLocation
 
     @Test
     fun `should return country code`() {
@@ -38,14 +38,14 @@ class IpStackServiceTest {
             }
         """
 
-        ReflectionTestUtils.setField(ipStackService, "accessKey", "test_key")
+        ReflectionTestUtils.setField(getIpLocation, "accessKey", "test_key")
 
         Mockito.`when`(restClient.get()).thenReturn(requestHeadersUriSpec)
         Mockito.`when`(requestHeadersUriSpec.uri("/$ip?access_key=test_key")).thenReturn(requestHeadersUriSpec)
         Mockito.`when`(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec)
         Mockito.`when`(responseSpec.body(String::class.java)).thenReturn(response)
 
-        val result = ipStackService.execute(ip)
+        val result = getIpLocation.execute(ip)
         assertEquals("ES", result)
     }
 
@@ -53,7 +53,7 @@ class IpStackServiceTest {
     fun `should throw IllegalArgumentException when error occurs`() {
         val ip = "217.127.206.227"
 
-        ReflectionTestUtils.setField(ipStackService, "accessKey", "test_key")
+        ReflectionTestUtils.setField(getIpLocation, "accessKey", "test_key")
 
         Mockito.`when`(restClient.get()).thenReturn(requestHeadersUriSpec)
         Mockito.`when`(requestHeadersUriSpec.uri("/$ip?access_key=test_key")).thenReturn(requestHeadersUriSpec)
@@ -61,7 +61,7 @@ class IpStackServiceTest {
         Mockito.`when`(responseSpec.body(String::class.java)).thenThrow(RuntimeException::class.java)
 
         val exception = assertThrows<IllegalArgumentException> {
-            ipStackService.execute(ip)
+            getIpLocation.execute(ip)
         }
 
         assertEquals("Error while fetching ip details", exception.message)
