@@ -15,66 +15,53 @@ class SearchCommissionRate(
     private val getIpLocationService: GetIpLocation
 ) {
 
+    private val objectMapper = ObjectMapper()
+
     fun execute(
         searchCriteria: SearchCriteria
     ): Response {
 
         val commissionRates = commissionRateRepository.findAll()
 
-        return if (commissionRates.isEmpty()) {
-            Response(10.0)
-        } else {
-            val commissionRate = commissionRates.firstOrNull { rate ->
-                validateRestrictions(rate.restrictions, searchCriteria)
-            }
-            if (commissionRate != null) {
-                Response(commissionRate.rate, commissionRate.name)
-            } else {
-                Response(10.0)
-            }
-        }
+        return commissionRates.firstOrNull { rate ->
+            validateRestrictions(objectMapper.readTree(rate.restrictions), searchCriteria)
+        }?.let { commissionRate ->
+            Response(commissionRate.rate, commissionRate.name)
+        } ?: Response(10.0)
     }
 
-    fun validateRestrictions(restrictions: String, searchCriteria: SearchCriteria): Boolean {
-        val objectMapper = ObjectMapper()
-        val restrictionsNode: JsonNode = objectMapper.readTree(restrictions)
+    fun validateRestrictions(restrictions: JsonNode, searchCriteria: SearchCriteria): Boolean {
+        val orConditions = restrictions["@or"]?.takeIf { it.isArray }
+        val andConditions = restrictions["@and"]?.takeIf { it.isArray }
+        val clientLocation = restrictions["@client.location"]?.get("country")?.asText() ?: return false
+        val freelancerLocation = restrictions["@freelancer.location"]?.get("country")?.asText() ?: return false
 
-        val orConditions = restrictionsNode["@or"]?.takeIf { it.isArray }
-        val andConditions = restrictionsNode["@and"]?.takeIf { it.isArray }
-        val clientLocation = restrictionsNode["@client.location"]?.get("country")?.asText() ?: return false
-        val freelancerLocation = restrictionsNode["@freelancer.location"]?.get("country")?.asText() ?: return false
-
-        // Validate @or conditions if present
         val orValid = orConditions?.any { condition ->
-            condition["mission_duration"]?.get("gt")?.asText()?.let {
-                extractNumericValue(it) <= extractNumericValue(searchCriteria.mission.length)
-            } ?: condition["commercial_relationship_duration"]?.get("gt")?.asText()?.let {
-                extractNumericValue(it) <= calculateDurationInMonths(
-                    searchCriteria.commercialRelationship.firstMission,
-                    searchCriteria.commercialRelationship.lastMission
-                )
-            } ?: false
-        } ?: true
+            checkConditions(condition, searchCriteria)
+        } != false
 
-        // Validate @and conditions if present
         val andValid = andConditions?.all { condition ->
-            condition["mission_duration"]?.get("gt")?.asText()?.let {
-                extractNumericValue(it) <= extractNumericValue(searchCriteria.mission.length)
-            } ?: condition["commercial_relationship_duration"]?.get("gt")?.asText()?.let {
-                extractNumericValue(it) <= calculateDurationInMonths(
-                    searchCriteria.commercialRelationship.firstMission,
-                    searchCriteria.commercialRelationship.lastMission
-                )
-            } ?: false
-        } ?: true
+            checkConditions(condition, searchCriteria)
+        } != false
 
-        // Validate @client.location and @freelancer.location
         val clientLocationValid = clientLocation == getIpLocationService.execute(searchCriteria.client.ip)
         val freelancerLocationValid = freelancerLocation == getIpLocationService.execute(searchCriteria.freelancer.ip)
 
         return orValid && andValid && clientLocationValid && freelancerLocationValid
     }
 
+    // Check the conditions for the mission and commercial relationship duration
+    private fun checkConditions(
+        condition: JsonNode?,
+        searchCriteria: SearchCriteria
+    ): Boolean = (condition?.get("mission_duration")?.get("gt")?.asText()?.let {
+        extractNumericValue(it) <= extractNumericValue(searchCriteria.mission.length)
+    } ?: condition?.get("commercial_relationship_duration")?.get("gt")?.asText()?.let {
+        extractNumericValue(it) <= calculateDurationInMonths(
+            searchCriteria.commercialRelationship.firstMission,
+            searchCriteria.commercialRelationship.lastMission
+        )
+    }) == true
 
     // Extract the numeric value from this kind of string: "4months"
     private fun extractNumericValue(duration: String): Int {

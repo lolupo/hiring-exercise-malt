@@ -12,7 +12,7 @@ import org.springframework.http.*
 import java.time.LocalDateTime
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class ApplicationTests {
+class CommissionRateControllerIntegrationTest {
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate

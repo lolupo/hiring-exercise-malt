@@ -224,24 +224,24 @@ class SearchCommissionRateTest {
     }
 
     @Test
-    fun `should return default commission rate when or condition is not met`() {
+    fun `should return default commission when client and freelancer location are different`() {
         val searchCriteria = SearchCriteria(
             client = Client(ip = "192.168.1.1"),
             freelancer = Freelancer(ip = "192.168.1.2"),
-            mission = Mission(length = "1months"),
+            mission = Mission(length = "4months"),
             commercialRelationship = CommercialRelationship(
                 firstMission = LocalDateTime.of(2022, 1, 1, 0, 0),
-                lastMission = LocalDateTime.of(2022, 1, 2, 0, 0)
+                lastMission = LocalDateTime.of(2022, 5, 1, 0, 0)
             )
         )
 
         val restrictions = """
             {
-                "@or": [
+                "@and": [
                     {"mission_duration": {"gt": "2months"}},
                     {"commercial_relationship_duration": {"gt": "2months"}}
                 ],
-                "@client.location": {"country": "ES"},
+                "@client.location": {"country": "JP"},
                 "@freelancer.location": {"country": "ES"}
             }
         """.trimIndent()
